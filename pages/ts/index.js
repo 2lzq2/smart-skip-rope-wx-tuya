@@ -5,45 +5,46 @@ import request from '../../utils/request';
 import { dpIdMap } from '../../utils/ts_utils/config';
 import Toast from '../../miniprogram_npm/@vant/weapp/toast/toast';
 
+//蓝牙状态字符
 const BleConnectStatus = {
   notConnected: '未连接',
   connecting: '连接中',
   connected: '已连接',
   connectionFailed: '连接失败'
 };
-
+//蓝牙连接状态颜色
 const BleConnectColor = {
   notConnected: '#FF0000',
   connecting: '#00FFFF',
   connected: '#0DB178',
   connectionFailed: '#FF0000'
 };
-
+//按钮颜色
 const ButtonColor = {
   continue: '#0DB178',
   pause: '#F5B301'
 };
-
+//按钮模式
 const ButtonMode = {
   start: 0,
   pause: 1,
   continue: 2,
   stop: 3
 };
-
+//按钮文字
 const ButtonText = {
   start: '开始',
   pause: '暂停',
   continue: '继续',
   stop: '停止'
 };
-
+//页面显示模式
 const PageMode = {
   modeSelect: 0,
   trainStart: 1,
   trainFinish: 2
 };
-
+//训练模式
 const TrainMode = {
   freeTrain: 0,
   cntTrain: 1,
@@ -65,20 +66,24 @@ Page({
     dpState: {},
     bleConnect: false,
     device_id: '',
+    //上次训练数据
     lastCnt: 0,
     lastTime: '--',
     lastSpeed: '--',
-
+    //当前数据
     nowCnt: 0,
     nowTime: 0,
     nowSpeed: 0,
+    //进度
     circlePercent: 0,
+    //界面
     valueOne: 0,
     valueTwo: 0,
     valueThr: 0,
     textOne: '',
     textTwo: '',
     textThr: '',
+    //目标值
     targetValue: '',
 
     bluShow: false,
@@ -97,32 +102,42 @@ Page({
     popTimeValue: [],
   },
 
+  //触摸开始时间
   touchStartTime: 0,
+  //定时器ID
   tapTimerId: null,
+  //上次按钮模式
   lastButtonMode: -1,
+  //训练目标值
   trainValue: 0,
+  //是否首次连接
   isFirstConnect: true,
+  //训练完成数据
   finalCnt: 0,
   finalTime: 0,
   finalSpeen: 0,
 
+  //跳转到设备详情页面
   jumpTodeviceEditPage() {
     const { icon, device_id, device_name } = this.data;
     wx.navigateTo({
       url: `/pages/home_center/device_manage/index?device_id=${device_id}&device_name=${device_name}&device_icon=${icon}`
     });
   },
-
+  //蓝牙接收回调函数
   blueRecvCallback(parseReceiveData) {
     const { type, status, dpState, deviceId} = parseReceiveData;
     console.log(parseReceiveData);
     console.log(dpState);
+    //判断连接状态
     if (type === 'connect' && status === 'fail') {
       if (deviceId) {
         if(this.isFirstConnect) {
+          //在连接成功后退出界面，再次进入的话连接都会失败，采用重连特殊处理
           this.isFirstConnect = false;
           setTimeout(this.connectBlue, 50);
         } else {
+          //重连仍失败的话，按照连接失败处理
           Toast.fail('连接失败 或 连接后又断开');
           this.setData({
             bleConnectStatus: BleConnectStatus.connectionFailed,
@@ -157,6 +172,7 @@ Page({
       });
     } else if (!(deviceId in parseReceiveData)) {
       // 一般为dp上报事件，可在此处处理数据or走业务逻辑
+      //根据训练模式的不同，处理训练数据。
       if(this.data.trainMode == TrainMode.freeTrain) {
         if('count_realtime' in dpState) {
           this.setData({
@@ -201,6 +217,7 @@ Page({
             circlePercent: Math.round((this.trainValue - dpState.count_realtime)*100/this.trainValue),
           });
           if(dpState.count_realtime == 0 && this.data.pageMode == PageMode.trainStart) {
+            //倒计数训练如果计数为0，说明训练结束。
             this.finalCnt = this.data.nowCnt;
             this.finalSpeed = this.data.nowSpeed;
             this.finalTime = this.data.nowTime;
@@ -232,6 +249,7 @@ Page({
             circlePercent: Math.round((this.trainValue - dpState.time_realtime)*100/this.trainValue),
           });
           if(dpState.time_realtime == 0 && this.data.pageMode == PageMode.trainStart) {
+            //倒计时训练如果时间为0，说明训练结束。
             this.finalCnt = this.data.nowCnt;
             this.finalSpeed = this.data.nowSpeed;
             this.finalTime = this.data.nowTime;
@@ -245,7 +263,7 @@ Page({
   onLoad: async function(options) {
     const { device_id } = options
     const { name, icon } = await getDeviceDetails(device_id)
-
+    //初始化时间选择表
     var minValues = [];
     var secValues = [];
     for(var i=0; i<60; i++)
@@ -357,6 +375,7 @@ Page({
     var { bleInstance } = this.data;
     if(!bleInstance || bleInstance._listeners.length == 0)
     {
+      //经测试后发现蓝牙连接错误后的监听回调为空，采用特殊处理，重新实例化。
       const { device_id } = this.data;
       const owner_id = wx.getStorageSync('owner_id');
       bleInstance = BleService.setNewInstance(device_id, owner_id);
@@ -458,7 +477,7 @@ Page({
     });
     this.sendTrainStop();
   },
-
+  //触摸开始，用于判断按钮状态
   btnTouchStart: function(e) {
     if(this.tapTimerId != null) {
       clearInterval(this.tapTimerId);
@@ -466,6 +485,7 @@ Page({
     }
     this.touchStartTime = new Date().getTime();
     this.lastButtonMode = -1;
+    //启动定时器，进行长按处理。
     this.tapTimerId = setInterval(function(that) {
       var { buttonMode, buttonText, buttonWidth } = that.data;
       if(buttonMode != ButtonMode.start) {
@@ -493,6 +513,7 @@ Page({
       }
     }, 20, this);
   },
+  //触摸结束
   btnTouchEnd: function(e) {
     if(this.tapTimerId != null) {
       clearInterval(this.tapTimerId);
@@ -500,12 +521,14 @@ Page({
     }
     var { buttonMode, buttonText, buttonColor } = this.data;
     if( buttonMode == ButtonMode.start) {
+      //开始时无法长按，只能短按。
       const toast = Toast.loading({
         duration: 0, // 持续展示 toast
         forbidClick: true,
         message: '倒计时 3 秒',
         mask: true,
       });
+      //显示倒计时
       let second = 3;
       const timer = setInterval((that) => {
         second--;
@@ -539,6 +562,7 @@ Page({
         buttonColor = ButtonColor.continue;
         this.sendTrainPause();
     }else {
+      //当按钮模式为停止时，只有文字也是停止，才是长按时间达标。
       if(buttonText == ButtonText.stop) {
         this.finalCnt = this.data.nowCnt;
         this.finalSpeed = this.data.nowSpeed;
@@ -555,6 +579,7 @@ Page({
       buttonColor
     });
   },
+  //返回跳绳主界面
   finishReturn: function() {
       var pageMode = PageMode.modeSelect;
       this.sendTrainStop();
@@ -562,6 +587,7 @@ Page({
         pageMode,
       });
   },
+  //弹出菜单。
   changeTargetValue: function() {
     if(this.data.buttonMode == ButtonMode.start) {
       if(this.data.trainMode == TrainMode.timeTrain)
@@ -579,18 +605,21 @@ Page({
       }
     }
   },
+  //数量菜单关闭
   popCntClose: function() {
     var popCntShow = false;
     this.setData({
       popCntShow,
     });
   },
+  //数量改变
   popCntChange: function(event) {
     var popCntValue = event.detail;
     this.setData({
       popCntValue,
     });
   },
+  //数量确认
   popCntConfirm: function(event) {
     this.trainValue = Number(this.data.popCntValue);
     this.setData({
@@ -599,18 +628,21 @@ Page({
     });
     this.sendCount();
   },
+  //时间菜单关闭
   popTimeClose: function() {
     var popTimeShow = false;
     this.setData({
       popTimeShow,
     });
   },
+  //时器菜单取消
   popTimeCancel: function() {
     var popTimeShow = false;
     this.setData({
       popTimeShow,
     });
   },
+  //时间菜单确认
   popTimeConfirm: function(event) {
     var value = Number(event.detail.index[0]*60 + event.detail.index[1]);
     this.trainValue = value;
@@ -621,6 +653,7 @@ Page({
     });
     this.sendTime();
   },
+  //数字转换为00:00这样的时间格式
   getTimeStr: function(timeValue) {
     var min = parseInt(timeValue/60);
     var sec = timeValue%60;
@@ -632,6 +665,7 @@ Page({
     }
     return min+':'+sec;
   },
+  //显示训练结果
   showTrainFinish: function() {
     if(this.data.trainMode == TrainMode.freeTrain) {
       this.setData({
