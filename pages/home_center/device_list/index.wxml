@@ -1,0 +1,25 @@
+<!--miniprogram/pages/home_center/device_list/index.js.wxml-->
+<view>
+  <van-tabs active="{{active}}" bind:change="onChange">
+    <van-tab title="设备面板">
+      <scroll-view class="scroll-list">
+        <view wx:if="{{deviceList.length >= 0}}" class="base-list">
+          <block wx:for="{{deviceList}}"wx:key="{{device.id}}" wx:for-index="idx" wx:for-item="device" >
+            <view class="base-item {{(idx+1)%2 !== 0 && 'base-item-left'}}" bindtap="jumpToPanel" data-device="{{device}}">
+              <view class="base-icon">
+                <image class="base-icon-images" src="{{device.icon}}"/>
+              </view>
+              <view class="base-name">{{device.name}}</view>
+            </view>
+          </block>
+          <view class="base-item {{(deviceList.length+1)%2 !== 0 && 'base-item-left'}}" bindtap="gotoPluginPage">
+              <view class="base-icon">
+                <image class="base-icon-images" src="/image/addDevicebtn@2x.png"/>
+              </view>
+              <view class="base-name">添加设备</view>
+          </view>
+        </view>
+      </scroll-view>
+    </van-tab>
+  </van-tabs>
+</view>

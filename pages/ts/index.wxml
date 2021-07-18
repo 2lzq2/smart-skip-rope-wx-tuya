@@ -1,0 +1,140 @@
+<view class="wrap">
+  <block wx:if="{{ pageMode == 0 }}">
+    <navbar device_name="{{device_name}}" bind:jumpTodeviceEditPage="jumpTodeviceEditPage" />
+    <view class="ble-status">
+      <view class="ble-status-item" style="color: #FFFFFF">蓝牙连接状态：</view>
+      <view class="ble-status-item" style="color: {{ bleTextColor }}">{{ bleConnectStatus }}</view>
+    </view>
+    <view class="control-box">
+      <view class="container">
+        <view class="content">
+          <view class="score">
+            <view class="score-item">
+              <view class="count-box">
+                <view class="count-box-value">{{ lastCnt }}</view>
+                <view class="count-box-unit">个</view>
+              </view>
+              <view class="count-tip">最近一次训练</view>
+            </view>
+            <van-image width="250rpx" height="250rpx" src="/image/sport.png" />
+          </view>
+          <view class="items">
+            <view class="item">
+              <view class="item-value">{{ lastTime }}</view>
+              <view class="item-label">时间</view>
+            </view>
+            <view class="item">
+              <view class="item-value">{{ lastSpeed }}</view>
+              <view class="item-label">速度</view>
+            </view>
+          </view>
+          <view class="mode-box">
+            <view wx:if="{{bluShow}}" bindtap="connectBlue" class="mode-item">
+              <view class="mode-item-left">
+                <view class="mode-item-title">连接蓝牙</view>
+              </view>
+              <van-icon class="mode-item-arrow" name="arrow" />
+            </view>
+            <view bind:tap="toFreeShow" class="mode-item">
+              <view class="mode-item-left">
+                <view class="mode-item-title">自由训练</view>
+              </view>
+              <van-icon class="mode-item-arrow" name="arrow" />
+            </view>
+            <view bind:tap="toCntShow" class="mode-item">
+              <view class="mode-item-left">
+                <view class="mode-item-title">计数训练</view>
+              </view>
+              <van-icon class="mode-item-arrow" name="arrow" />
+            </view>
+            <view bind:tap="toTimeShow" class="mode-item">
+              <view class="mode-item-left">
+                <view class="mode-item-title">计时训练</view>
+              </view>
+              <van-icon class="mode-item-arrow" name="arrow" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <block wx:if="{{ pageMode == 1 }}">
+    <notitle-navbar bind:back="toModeShow" />
+    <view class="ble-status">
+      <view class="ble-status-item" style="color: #FFFFFF">蓝牙连接状态：</view>
+      <view class="ble-status-item" style="color: {{ bleTextColor }}">{{ bleConnectStatus }}</view>
+    </view>
+    <view class="control-box">
+      <view class="container">
+        <view class="content">
+          <block wx:if="{{ trainMode == 0 }}">
+            <view class="count-box">
+              <view class="count-box-value">{{ valueOne }}</view>
+              <view class="count-box-unit">{{ textOne }}</view>
+            </view>
+          </block>
+          <block wx:if="{{ trainMode != 0 }}">
+            <van-circle value="{{ circlePercent }}" color="#0DB178" size="120" stroke-width="6" bindtap="changeTargetValue">
+              <view class="circle-value">{{ valueOne }}</view>
+            </van-circle>
+            <view class="count-tip">{{ targetValue }}</view>
+          </block>
+          <view class="items">
+            <view class="item">
+              <view class="item-value">{{ valueTwo }}</view>
+              <view class="item-label">{{ textTwo }}</view>
+            </view>
+            <view class="item">
+              <view class="item-value">{{ valueThr }}</view>
+              <view class="item-label">{{ textThr }}</view>
+            </view>
+          </view>
+          <view class="mode-button" bindtouchstart="btnTouchStart" bindtouchend="btnTouchEnd">
+            <view class="mode-button-1" style="background-color: {{ buttonColor }}" ></view>
+            <view wx:if="{{ buttonMode == 3 }}" class="mode-button-2" style="width: {{ buttonWidth }}"></view>
+            <view class="mode-button-title">{{ buttonText }}</view>
+          </view>
+          <view class="count-tip" style="margin-top: 20rpx">长按停止训练</view>
+          <van-popup show="{{ popCntShow }}" closeable round position="bottom" custom-style="height: 30%" bind:close="popCntClose">
+            <view class="popupmain">
+              <van-stepper class="popupitem" value="{{ popCntValue }}" max="9999" integer="1" input-width="100rpx" button-size="80rpx" bind:change="popCntChange"/>
+              <van-button class="popupitem" round type="primary" bind:click="popCntConfirm">确  定</van-button>
+            </view>
+          </van-popup>
+          <van-popup show="{{ popTimeShow }}" round position="bottom" bind:close="popTimeClose">
+            <van-picker show-toolbar title="选择训练时长" columns="{{ popTimeValue }}" bind:cancel="popTimeCancel" bind:confirm="popTimeConfirm" />
+          </van-popup>
+        </view>
+      </view>
+    </view>
+  </block>
+  <block wx:if="{{ pageMode == 2 }}">
+    <view class="control-box">
+      <view class="container">
+        <view class="circle-value" style="margin-top: 150rpx">恭喜你</view>
+        <view class="circle-value">完成了本次训练</view>
+        <view class="content">
+          <view class="count-box">
+            <view class="count-box-value">{{ lastCnt }}</view>
+            <view class="count-box-unit">个</view>
+          </view>
+          <view class="items">
+            <view class="item">
+              <view class="item-value">{{ lastTime }}</view>
+              <view class="item-label">时间</view>
+            </view>
+            <view class="item">
+              <view class="item-value">{{ lastSpeed}}</view>
+              <view class="item-label">速度</view>
+            </view>
+          </view>
+          <view class="mode-button" style="margin-top: 100rpx !important" bindtap="finishReturn">
+            <view class="mode-button-1" style="background-color: #0DB178"></view>
+            <view class="mode-button-title">返回</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>
+<van-toast id="van-toast" />

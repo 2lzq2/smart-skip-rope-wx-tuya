@@ -1,0 +1,15 @@
+{
+  "usingComponents": {
+    "navbar": "../../components/t_navbar",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-image": "@vant/weapp/image/index",
+    "van-circle": "@vant/weapp/circle/index",
+    "van-toast": "@vant/weapp/toast/index",
+    "van-popup": "@vant/weapp/popup/index",
+    "van-stepper": "@vant/weapp/stepper/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-picker": "@vant/weapp/picker/index",
+    "notitle-navbar": "../../components/notitle_navbar"
+  },
+  "navigationStyle": "custom"
+}
