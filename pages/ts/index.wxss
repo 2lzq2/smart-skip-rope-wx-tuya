@@ -4,6 +4,11 @@
   min-height: 100vh;
   background: #232A2C;
 }
+.page {
+  /* display: flex; */
+  /* flex-direction: column; */
+  min-height: 100vh;
+}
 .control-box {
   flex: 1;
   display: flex;
@@ -23,7 +28,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  width: 375pt;
+  width: 375rpx;
   flex: 1;
   align-items: center;
 }
@@ -128,6 +133,13 @@
   font-size: 40px;
   font-family: 'DIN Condensed';
   color: #0DB178;
+}
+.finish-text {
+  font-size: 40px;
+  font-family: 'DIN Condensed';
+  color: #0DB178;
+  width: 750rpx;
+  text-align: center;
 }
 .mode-button {  
   width: 500rpx;

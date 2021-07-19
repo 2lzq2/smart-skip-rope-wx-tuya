@@ -50,6 +50,8 @@ const TrainMode = {
   cntTrain: 1,
   timeTrain: 2,
 };
+//翻页动画持续时间
+const AnimationDuration = 150;
 
 // 注入方法
 BleService.initFunction(request);
@@ -100,6 +102,13 @@ Page({
 
     popCntValue: 300,
     popTimeValue: [],
+
+    aniMain: '',
+    aniTrain: '',
+    aniFinish: '',
+    mainShow: true,
+    trainShow: false,
+    finishShow: false
   },
 
   //触摸开始时间
@@ -116,6 +125,11 @@ Page({
   finalCnt: 0,
   finalTime: 0,
   finalSpeen: 0,
+  //翻页动画开始标志
+  scrollStartFlag: false,
+  //屏幕尺寸
+  screenWidth: 0,
+  screenHeight: 0,
 
   //跳转到设备详情页面
   jumpTodeviceEditPage() {
@@ -271,7 +285,8 @@ Page({
       minValues[i] = `${i}分`;
       secValues[i] = `${i}秒`;
     }
-
+    this.screenWidth = (await wx.getSystemInfo()).windowWidth;
+    this.screenHeight = (await wx.getSystemInfo()).windowHeight;
     // 指令下发
     this.setData({
       device_name: name,
@@ -420,6 +435,7 @@ Page({
       buttonMode: ButtonMode.start,
     });
     this.sendModeFree();
+    this.scrollMainToTrain();
   },
   //进入计数训练页面
   toCntShow: function() {
@@ -441,9 +457,9 @@ Page({
       buttonText: '开始',
       buttonWidth: '46rpx',
       buttonMode: ButtonMode.start,
-      popCntShow: true,
     });
     this.sendModeCnt();
+    this.scrollMainToTrain();
   },
   //进入计时训练页面
   toTimeShow: function() {
@@ -465,9 +481,9 @@ Page({
       buttonText: '开始',
       buttonWidth: '46rpx',
       buttonMode: ButtonMode.start,
-      popTimeShow: true,
     });
     this.sendModeTime();
+    this.scrollMainToTrain();
   },
   //回到模式选择页面
   toModeShow: function() {
@@ -476,6 +492,7 @@ Page({
       pageMode
     });
     this.sendTrainStop();
+    this.scrollTrainToMain();
   },
   //触摸开始，用于判断按钮状态
   btnTouchStart: function(e) {
@@ -586,6 +603,7 @@ Page({
       this.setData({
         pageMode,
       });
+      this.scrollFinishToMain();
   },
   //弹出菜单。
   changeTargetValue: function() {
@@ -689,5 +707,174 @@ Page({
         pageMode: PageMode.trainFinish,
       });
     }
+    this.scrollTrainToFinish();
+  },
+  scrollMainToTrain() {
+    var aniOne = wx.createAnimation({
+      duration: 0,
+    });
+    var aniTwo = wx.createAnimation({
+      duration: 0,
+    });
+    aniOne.translate(0,0).step();
+    aniTwo.translate(this.screenWidth,-this.screenHeight).step();
+    this.setData({
+      mainShow: true,
+      trainShow: true,
+      finishShow: false,
+      aniMain: aniOne.export(),
+      aniTrain: aniTwo.export(),
+    });
+    setTimeout((that) => {
+      that.scrollStartFlag = true;
+      var aniOne = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      var aniTwo = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      aniOne.translate(-that.screenWidth,0).step();
+      aniTwo.translate(0,-that.screenHeight).step();
+      that.setData({
+        aniMain: aniOne.export(),
+        aniTrain: aniTwo.export()
+      })
+    }, 50, this);
+  },
+  scrollTrainToFinish() {
+    var aniOne = wx.createAnimation({
+      duration: 0,
+    });
+    var aniTwo = wx.createAnimation({
+      duration: 0,
+    });
+    aniOne.translate(0,0).step();
+    aniTwo.translate(this.screenWidth,-this.screenHeight).step();
+    this.setData({
+      mainShow: false,
+      trainShow: true,
+      finishShow: true,
+      aniTrain: aniOne.export(),
+      aniFinish: aniTwo.export(),
+    });
+    setTimeout((that) => {
+      that.scrollStartFlag = true;
+      var aniOne = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      var aniTwo = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      aniOne.translate(-that.screenWidth,0).step();
+      aniTwo.translate(0,-that.screenHeight).step();
+      that.setData({
+        aniTrain: aniOne.export(),
+        aniFinish: aniTwo.export()
+      })
+    }, 50, this);
+  },
+  scrollTrainToMain() {
+    var aniOne = wx.createAnimation({
+      duration: 0,
+    });
+    var aniTwo = wx.createAnimation({
+      duration: 0,
+    });
+    aniOne.translate(-this.screenWidth,0).step();
+    aniTwo.translate(0,-this.screenHeight).step();
+    this.setData({
+      mainShow: true,
+      trainShow: true,
+      finishShow: false,
+      aniMain: aniOne.export(),
+      aniTrain: aniTwo.export(),
+    });
+    setTimeout((that) => {
+      that.scrollStartFlag = true;
+      var aniOne = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      var aniTwo = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      aniOne.translate(0,0).step();
+      aniTwo.translate(that.screenWidth,-that.screenHeight).step();
+      that.setData({
+        aniMain: aniOne.export(),
+        aniTrain: aniTwo.export()
+      })
+    }, 50, this);
+  },
+  scrollFinishToMain() {
+    var aniOne = wx.createAnimation({
+      duration: 0,
+    });
+    var aniTwo = wx.createAnimation({
+      duration: 0,
+    });
+    aniOne.translate(-this.screenWidth,0).step();
+    aniTwo.translate(0,-this.screenHeight).step();
+    this.setData({
+      mainShow: true,
+      trainShow: false,
+      finishShow: true,
+      aniMain: aniOne.export(),
+      aniFinish: aniTwo.export(),
+    });
+    setTimeout((that) => {
+      that.scrollStartFlag = true;
+      var aniOne = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      var aniTwo = wx.createAnimation({
+        duration: AnimationDuration,
+      });
+      aniOne.translate(0,0).step();
+      aniTwo.translate(that.screenWidth,-that.screenHeight).step();
+      that.setData({
+        aniMain: aniOne.export(),
+        aniFinish: aniTwo.export()
+      })
+    }, 10, this);
+  },
+  pageScrollEnd: function() {
+    if(this.scrollStartFlag) {
+      this.scrollStartFlag = false;
+      var aniCenter = wx.createAnimation({
+        duration: 0,
+      })
+      aniCenter.translate(0,0).step();
+      if(this.data.pageMode == PageMode.modeSelect) {
+        this.setData({
+          mainShow: true,
+          trainShow: false,
+          finishShow: false,
+          aniTrain: aniCenter.export(),
+        });
+      } else if(this.data.pageMode == PageMode.trainStart) {
+        this.setData({
+          mainShow: false,
+          trainShow: true,
+          finishShow: false,
+          aniTrain: aniCenter.export(),
+        });
+        if(this.data.trainMode == TrainMode.cntTrain) {
+          this.setData({
+            popCntShow: true,
+          });
+        } else if(this.data.trainMode == TrainMode.timeTrain) {
+          this.setData({
+            popTimeShow: true,
+          });
+        }
+      } else {
+        this.setData({
+          mainShow: false,
+          trainShow: false,
+          finishShow: true,
+          aniFinish: aniCenter.export(),
+        });
+      }
+  }
   },
 });

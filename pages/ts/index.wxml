@@ -1,5 +1,5 @@
 <view class="wrap">
-  <block wx:if="{{ pageMode == 0 }}">
+  <view class="page" wx:if="{{ mainShow }}" animation="{{ aniMain }}" bindtransitionend="pageScrollEnd">
     <navbar device_name="{{device_name}}" bind:jumpTodeviceEditPage="jumpTodeviceEditPage" />
     <view class="ble-status">
       <view class="ble-status-item" style="color: #FFFFFF">蓝牙连接状态：</view>
@@ -57,8 +57,8 @@
         </view>
       </view>
     </view>
-  </block>
-  <block wx:if="{{ pageMode == 1 }}">
+  </view>
+  <view class="page" wx:if="{{ trainShow }}" animation="{{ aniTrain }}" bindtransitionend="pageScrollEnd">
     <notitle-navbar bind:back="toModeShow" />
     <view class="ble-status">
       <view class="ble-status-item" style="color: #FFFFFF">蓝牙连接状态：</view>
@@ -107,12 +107,12 @@
         </view>
       </view>
     </view>
-  </block>
-  <block wx:if="{{ pageMode == 2 }}">
+  </view>
+  <view class="page" wx:if="{{ finishShow }}" animation="{{ aniFinish }}" bindtransitionend="pageScrollEnd">
     <view class="control-box">
       <view class="container">
-        <view class="circle-value" style="margin-top: 150rpx">恭喜你</view>
-        <view class="circle-value">完成了本次训练</view>
+        <view class="finish-text" style="margin-top: 150rpx">恭喜你</view>
+        <view class="finish-text">完成了本次训练</view>
         <view class="content">
           <view class="count-box">
             <view class="count-box-value">{{ lastCnt }}</view>
@@ -135,6 +135,6 @@
         </view>
       </view>
     </view>
-  </block>
+  </view>
 </view>
 <van-toast id="van-toast" />
